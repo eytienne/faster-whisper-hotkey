@@ -1,4 +1,5 @@
-# src/faster_whisper_hotkey/transcribe.py
+"""Entry point."""
+
 import logging
 import curses
 import warnings
