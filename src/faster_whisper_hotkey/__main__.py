@@ -57,12 +57,13 @@ def main():
                 # ------------------------------------------------------------------
                 with pulsectl.Pulse() as pulse:
                     sources = pulse.source_list()
-                    source_names = [src.name for src in sources]
-                    device_name = curses.wrapper(
+                    sources = {src.description: src.name for src in sources}
+                    selected_device = curses.wrapper(
                         lambda stdscr: curses_menu(
-                            stdscr, "Audio Device", source_names
+                            stdscr, "Audio Device", list(sources.keys())
                         )
                     )
+                    device_name = sources[selected_device]
                     if not device_name:
                         continue
 
