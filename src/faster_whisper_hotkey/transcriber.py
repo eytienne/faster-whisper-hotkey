@@ -6,6 +6,7 @@ import sounddevice as sd
 
 from pynput import keyboard
 
+from faster_whisper_hotkey.utils import enum_get
 from .settings import Settings
 from .models import ModelWrapper
 from .clipboard import backup_clipboard, set_clipboard, restore_clipboard
@@ -21,41 +22,27 @@ accepted_device_voxtral = ["cuda"]
 # Minimum recording duration to prevent short noise transcriptions
 MIN_RECORDING_DURATION = 1.0  # seconds
 
-
 class MicrophoneTranscriber:
     def __init__(self, settings: Settings):
-        self.settings = settings
         self.sample_rate = 16000
         self.max_buffer_length = 10 * 60 * self.sample_rate
         self.audio_buffer = np.zeros(self.max_buffer_length, dtype=np.float32)
         self.buffer_index = 0
 
         # Load the requested model wrapper
-        self.model_wrapper = ModelWrapper(self.settings)
+        self.model_wrapper = ModelWrapper(settings)
 
         self.stop_event = threading.Event()
         self.is_recording = False
-        self.device_name = self.settings.device_name
+        self.device_name = settings.device_name
         self.keyboard_controller = keyboard.Controller()
-        self.language = self.settings.language
-        self.hotkey_key = self._parse_hotkey(self.settings.hotkey)
+        self.language = settings.language
+        self.hotkey_key = enum_get(keyboard.Key, settings.hotkey, keyboard.Key.pause)
         self.is_transcribing = False
         self.last_transcription_end_time = 0.0
         self.transcription_queue = []
         self.timer = None
         self.recording_start_time = 0.0
-
-    # ------------------------------------------------------------------
-    # Hotkey mapping
-    # ------------------------------------------------------------------
-    def _parse_hotkey(self, hotkey_str):
-        key_mapping = {
-            "pause": keyboard.Key.pause,
-            "f4": keyboard.Key.f4,
-            "f8": keyboard.Key.f8,
-            "insert": keyboard.Key.insert,
-        }
-        return key_mapping.get(hotkey_str, keyboard.Key.pause)
 
     # ------------------------------------------------------------------
     # Set default audio source
@@ -102,7 +89,7 @@ class MicrophoneTranscriber:
             transcribed_text = self.model_wrapper.transcribe(
                 audio_data,
                 sample_rate=self.sample_rate,
-                language=self.settings.language,
+                language=self.language,
             )
 
             # ---------- send the text ----------
@@ -247,7 +234,7 @@ class MicrophoneTranscriber:
             on_press=self.on_press, on_release=self.on_release
         ) as listener:
             logger.info(
-                f"Press {self.settings.hotkey.capitalize()} to start/stop recording. Press Ctrl+C to exit."
+                f"Press {self.hotkey_key.name.capitalize()} to start/stop recording. Press Ctrl+C to exit."
             )
             try:
                 listener.join()

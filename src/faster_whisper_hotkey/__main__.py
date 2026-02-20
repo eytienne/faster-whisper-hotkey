@@ -33,6 +33,7 @@ import pulsectl
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+HOTKEY_OPTIONS = ["Pause", "F4", "F8", "INSERT"]
 
 def main():
     while True:
@@ -126,10 +127,9 @@ def main():
                     if not language:
                         continue
 
-                    hotkey_options = ["Pause", "F4", "F8", "INSERT"]
                     selected_hotkey = curses.wrapper(
                         lambda stdscr: curses_menu(
-                            stdscr, "Select Hotkey", hotkey_options
+                            stdscr, "Select Hotkey", HOTKEY_OPTIONS
                         )
                     )
                     if not selected_hotkey:
@@ -186,9 +186,8 @@ def main():
                     if not target_language:
                         continue
 
-                    hotkey_options = ["Pause", "F4", "F8", "INSERT"]
                     selected_hotkey = curses.wrapper(
-                        lambda stdscr: curses_menu(stdscr, "Hotkey", hotkey_options)
+                        lambda stdscr: curses_menu(stdscr, "Hotkey", HOTKEY_OPTIONS)
                     )
                     if not selected_hotkey:
                         continue
@@ -222,9 +221,8 @@ def main():
 
                     language = ""  # Parakeet does not require a language flag
 
-                    hotkey_options = ["Pause", "F4", "F8", "INSERT"]
                     selected_hotkey = curses.wrapper(
-                        lambda stdscr: curses_menu(stdscr, "Hotkey", hotkey_options)
+                        lambda stdscr: curses_menu(stdscr, "Hotkey", HOTKEY_OPTIONS)
                     )
                     if not selected_hotkey:
                         continue
@@ -276,9 +274,8 @@ def main():
 
                     language = "auto"
 
-                    hotkey_options = ["Pause", "F4", "F8", "INSERT"]
                     selected_hotkey = curses.wrapper(
-                        lambda stdscr: curses_menu(stdscr, "Hotkey", hotkey_options)
+                        lambda stdscr: curses_menu(stdscr, "Hotkey", HOTKEY_OPTIONS)
                     )
                     if not selected_hotkey:
                         continue

@@ -3,7 +3,7 @@ from typing import List
 
 
 def curses_menu(
-    stdscr, title: str, options: List[str], message: str = "", initial_idx=0
+    stdscr: curses.window, title: str, options: List[str], message: str = "", initial_idx=0
 ):
     """
     Display a scrollable list of `options` in a curses window.
@@ -119,7 +119,7 @@ def curses_menu(
         draw_menu()
 
 
-def get_initial_choice(stdscr):
+def get_initial_choice(stdscr: curses.window):
     """
     Prompt the user to choose whether to use the last saved settings or
     to configure new ones.
