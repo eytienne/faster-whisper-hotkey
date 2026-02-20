@@ -1,4 +1,6 @@
 import curses
+import math
+import time
 from typing import List
 
 
@@ -100,13 +102,24 @@ def curses_menu(
 
     draw_menu()
 
+    search = ""
+    last_key_time = -math.inf
+    DELAY_BETWEEN_LETTER_PRESSES = 0.250
     # ----- main key‑handling loop --------------------------------------------
     while True:
         key = stdscr.getch()
-        if key == curses.KEY_UP and current_row > 0:
-            current_row -= 1
-        elif key == curses.KEY_DOWN and current_row < len(options) - 1:
-            current_row += 1
+        if key == curses.KEY_UP or key == curses.KEY_DOWN:
+            current_row = (current_row + (-1 if key == curses.KEY_UP else 1)) % len(options)
+        elif 0 <= key <= 255 and chr(key).isalpha():
+            current_key_time = time.monotonic()
+            elapsed_since_last_key = current_key_time - last_key_time
+            if elapsed_since_last_key > DELAY_BETWEEN_LETTER_PRESSES:
+                search = ""
+            search += chr(key).lower()
+            last_key_time = current_key_time
+
+            current_row = next((i for i, option in enumerate(options) if option.lower().startswith(search)), current_row)
+
         elif key in [curses.KEY_ENTER, 10, 13]:
             return options[current_row]
         elif key == 27:  # ESC
@@ -116,6 +129,7 @@ def curses_menu(
         new_h, new_w = stdscr.getmaxyx()
         if new_h != h or new_w != w:
             h, w = new_h, new_w
+
         draw_menu()
 
 
