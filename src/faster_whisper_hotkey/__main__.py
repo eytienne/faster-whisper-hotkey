@@ -136,17 +136,6 @@ def main():
                         continue
                     hotkey = selected_hotkey.lower()
 
-                    save_settings(
-                        {
-                            "device_name": device_name,
-                            "model_type": "whisper",
-                            "model_name": model_name,
-                            "compute_type": compute_type,
-                            "device": device,
-                            "language": language,
-                            "hotkey": hotkey,
-                        }
-                    )
                     settings = Settings(
                         device_name=device_name,
                         model_type="whisper",
@@ -208,17 +197,6 @@ def main():
                     # Explicit compute_type to keep compatibility with older Settings
                     compute_type = "float16"
 
-                    save_settings(
-                        {
-                            "device_name": device_name,
-                            "model_type": "canary",
-                            "model_name": model_name,
-                            "compute_type": compute_type,
-                            "device": device,
-                            "language": f"{source_language}-{target_language}",
-                            "hotkey": hotkey,
-                        }
-                    )
                     settings = Settings(
                         device_name=device_name,
                         model_type="canary",
@@ -255,17 +233,6 @@ def main():
                     # Explicit compute_type to keep compatibility with older Settings
                     compute_type = "float16"
 
-                    save_settings(
-                        {
-                            "device_name": device_name,
-                            "model_type": "parakeet",
-                            "model_name": model_name,
-                            "compute_type": compute_type,
-                            "device": device,
-                            "language": language,
-                            "hotkey": hotkey,
-                        }
-                    )
                     settings = Settings(
                         device_name=device_name,
                         model_type="parakeet",
@@ -317,17 +284,6 @@ def main():
                         continue
                     hotkey = selected_hotkey.lower()
 
-                    save_settings(
-                        {
-                            "device_name": device_name,
-                            "model_type": "voxtral",
-                            "model_name": model_name,
-                            "compute_type": compute_type,
-                            "device": device,
-                            "language": language,
-                            "hotkey": hotkey,
-                        }
-                    )
                     settings = Settings(
                         device_name=device_name,
                         model_type="voxtral",
@@ -337,6 +293,7 @@ def main():
                         language=language,
                         hotkey=hotkey,
                     )
+                save_settings(settings)
 
             # ----------------------------------------------------------------------
             # 7️⃣  Launch the transcriber

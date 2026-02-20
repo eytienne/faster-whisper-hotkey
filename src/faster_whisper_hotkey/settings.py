@@ -22,10 +22,10 @@ class Settings:
     hotkey: str = "pause"
 
 
-def save_settings(settings: dict):
+def save_settings(settings: Settings):
     try:
         with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(settings, f)
+            json.dump(settings.__dict__, f)
     except IOError as e:
         logger.error(f"Failed to save settings: {e}")
 
@@ -33,7 +33,7 @@ def save_settings(settings: dict):
 def load_settings() -> Settings | None:
     try:
         with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            data: dict = json.load(f)
             data.setdefault("hotkey", "pause")
             data.setdefault("model_type", "whisper")
             data.setdefault("model_name", "large-v3")
