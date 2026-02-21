@@ -1,3 +1,4 @@
+import os
 import time
 import shutil
 import subprocess
@@ -35,30 +36,38 @@ def paste_x11(is_terminal: bool):
         keyboard_controller.release(keyboard.Key.ctrl_l)
 
 def paste_wayland(is_terminal: bool):
-    combo = "ctrl+shift+v" if is_terminal else "ctrl+v"
-    wtype_path = shutil.which("wtype")
-    if not wtype_path:
-        logger.warning("wtype not found - cannot auto-paste on Wayland.")
     try:
+        wtype_path = shutil.which("wtype")
+        if not wtype_path:
+            raise Warning("wtype not found - cannot auto-paste on Wayland.")
+        modifiers = ["ctrl", "shift"] if is_terminal else ["ctrl"]
+        def flat(nested):
+            return [item for sublist in nested for item in sublist]
+        command = [wtype_path,
+            *flat([["-M", modifier] for modifier in modifiers]),
+            "v",
+            *flat([["-m", modifier] for modifier in reversed(modifiers)])
+        ]
         subprocess.run(
-            [wtype_path, combo],
+            command,
             check=True,
             capture_output=True
         )
-    except subprocess.CalledProcessError as e:
-        logger.error(
-            f"Auto-paste failed (exit code={e.returncode}) on Wayland; please paste manually (Ctrl+Shift+V)."
-        )
-        if e.stdout:
-            logger.error(f"wtype stdout: {e.stdout.strip().decode()}")
-        if e.stderr:
-            logger.error(f"wtype stderr: {e.stderr.strip().decode()}")
+    except Exception as e:
+        if isinstance(e, subprocess.CalledProcessError):
+            logger.error(
+                f"Auto-paste failed on Wayland (exit code={e.returncode}); stderr={e.stderr.strip().decode(errors='replace')}"
+            )
+        elif isinstance(e, Warning):
+            logger.warning(*e.args)
+        logger.warning("Falling back to X11...")
+        paste_x11(is_terminal)
 
 def paste_to_active_window():
     """
     Detect the focused window and issue the appropriate paste shortcut.
     """
-    if __import__("os").getenv("WAYLAND_DISPLAY"):
+    if os.getenv("WAYLAND_DISPLAY"):
         container = terminal.get_focused_container_wayland()
         is_terminal = terminal.is_terminal_window_wayland(container)
         paste_wayland(is_terminal)
@@ -66,4 +75,3 @@ def paste_to_active_window():
         classes = terminal.get_active_window_class_x11()
         is_terminal = terminal.is_terminal_window_x11(classes)
         paste_x11(is_terminal)
-

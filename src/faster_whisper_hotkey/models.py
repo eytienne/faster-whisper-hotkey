@@ -1,10 +1,11 @@
 import os
 import tempfile
 import logging
+import numpy as np
 import torch
 import soundfile as sf
 
-from typing import Optional
+from typing import BinaryIO, Optional, Union
 
 from transformers import (
     VoxtralForConditionalGeneration,
@@ -100,7 +101,7 @@ class ModelWrapper:
             raise ValueError(f"Unknown model type: {self.model_type}")
 
     def transcribe(
-        self, audio_data, sample_rate: int = 16000, language: Optional[str] = None
+        self, audio_data: Union[str, BinaryIO, np.ndarray], sample_rate: int = 16000, language: Optional[str] = None
     ) -> str:
         """
         Transcribe a numpy array of audio samples and return transcribed text.
