@@ -34,28 +34,25 @@ def paste_x11(is_terminal: bool):
         keyboard_controller.release("v")
         keyboard_controller.release(keyboard.Key.ctrl_l)
 
-
-def _send_key_wayland(combo: str) -> bool:
+def paste_wayland(is_terminal: bool):
+    combo = "ctrl+shift+v" if is_terminal else "ctrl+v"
     wtype_path = shutil.which("wtype")
     if not wtype_path:
         logger.warning("wtype not found - cannot auto-paste on Wayland.")
-        return False
     try:
-        subprocess.run([wtype_path, combo], check=True)
-        return True
-    except Exception as e:
-        logger.error(f"wtype failed: {e}")
-        return False
-
-
-def paste_wayland(is_terminal: bool):
-    combo = "ctrl+shift+v" if is_terminal else "ctrl+v"
-    success = _send_key_wayland(combo)
-    if not success:
-        logger.warning(
-            "Auto-paste failed on Wayland; please paste manually (Ctrl+Shift+V)."
+        subprocess.run(
+            [wtype_path, combo],
+            check=True,
+            capture_output=True
         )
-
+    except subprocess.CalledProcessError as e:
+        logger.error(
+            f"Auto-paste failed (exit code={e.returncode}) on Wayland; please paste manually (Ctrl+Shift+V)."
+        )
+        if e.stdout:
+            logger.error(f"wtype stdout: {e.stdout.strip().decode()}")
+        if e.stderr:
+            logger.error(f"wtype stderr: {e.stderr.strip().decode()}")
 
 def paste_to_active_window():
     """
@@ -69,3 +66,4 @@ def paste_to_active_window():
         classes = terminal.get_active_window_class_x11()
         is_terminal = terminal.is_terminal_window_x11(classes)
         paste_x11(is_terminal)
+
