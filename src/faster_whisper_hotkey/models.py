@@ -29,7 +29,6 @@ class ModelWrapper:
         self.model = None
         self.processor = None
         self.TranscriptionRequest = None
-        self._model_ref = None
         self._load_model()
 
     def _load_model(self):
@@ -49,13 +48,11 @@ class ModelWrapper:
                 model_name=self.settings.model_name,
                 map_location=self.settings.device,
             ).eval()
-            self._model_ref = self.model
 
         elif mt == "canary":
             self.model = EncDecMultiTaskModel.from_pretrained(
                 self.settings.model_name, map_location=self.settings.device
             ).eval()
-            self._model_ref = self.model
 
         elif mt == "voxtral":
             from typing import Optional
